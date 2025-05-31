@@ -1,4 +1,3 @@
-/* Global: prevent page scroll */
 html, body {
 	margin: 0;
 	padding: 0;
@@ -10,36 +9,131 @@ html, body {
 
 .parent {
 	display: flex;
-	flex-direction: row; /* CHANGED FROM column */
+	flex-direction: row;
 	height: 100vh;
-	width: 100%;
+	width: 100vw;
 	background-color: #000;
 	overflow: hidden;
 }
 
+.chatList {
+	margin-top: 5%;
+	position: relative;
+	width: 260px;
+	border-right: 1px solid #222;
+	display: flex;
+	flex-direction: column;
+	padding: 1rem 0.5rem 1rem 1rem;
+	overflow: hidden;
+	transition: width 0.2s ease;
+	flex-shrink: 0; /* Prevent shrinking */
+	color: #fff;
+	height: 100vh;
+	background: transparent;
+}
 
-/* Scrollable Chat Area */
+.toggleSidebarBtn {
+	border: none;
+	color: #ccc;
+	width: 3rem;
+	height: 3rem;
+	cursor: pointer;
+	font-size: 2rem;
+	padding: 0.4rem;
+	position: absolute;
+	top: 0.5rem;
+	right: 0.5rem;
+	background: transparent;
+}
+
+.sidebarHeader {
+	padding: 2rem;
+	position: relative;
+	flex-shrink: 0;
+}
+
+.newChatBtn {
+	background-color: transparent;
+	margin-top: 10%;
+	background-color: #00bfa6;
+	color: #000;
+	border: none;
+	padding: 0.5rem 1rem;
+	border-radius: 8px;
+	font-weight: bold;
+	font-size: 0.9rem;
+	cursor: pointer;
+	margin-bottom: 1rem;
+	transition: background-color 0.3s ease;
+	flex-shrink: 0;
+}
+
+.newChatBtn:hover {
+	background-color: #00a892;
+}
+
+.chatHistory {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	overflow-y: auto;
+	max-height: 100%;
+	flex-grow: 1;
+	padding: 0.5rem 0.5rem;
+}
+
+.chatHistoryItem {
+	color: #eee;
+	padding: 0.75rem 1rem;
+	border-radius: 8px;
+	cursor: pointer;
+	font-size: 0.85rem;
+	transition: background-color 0.2s ease, color 0.2s ease;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	flex-shrink: 0;
+}
+
+.chatHistoryItem:hover {
+	color: #00bfa6;
+}
+
+.chatHistoryItem.active {
+	background-color: #00bfa6;
+	font-weight: bold;
+}
+
+.mainChatContainer {
+	margin-top: 1%;
+	flex: 1 0 0; /* Don't shrink, take remaining space */
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow: hidden;
+	min-width: 0;
+	min-height: 0;
+}
+
 .chat {
-	flex: 1 1 auto;
+	flex: 1 0 0; /* Don't shrink, take available space */
 	overflow-y: auto;
 	padding: 1.5rem;
 	display: flex;
 	flex-direction: column;
 	gap: 1.2rem;
 	scroll-behavior: smooth;
+	min-height: 0;
 }
 
-/* Sticky Input Bar */
 .inputContainer {
 	position: sticky;
-	bottom: 0;
+	bottom: 28px;
 	background-color: #000;
 	border-top: 1px solid #222;
-	padding: 1.5rem 2rem;
 	z-index: 10;
 }
 
-/* Input & Button Wrapper */
 .inputArea {
 	display: flex;
 	align-items: flex-end;
@@ -47,7 +141,6 @@ html, body {
 	width: 100%;
 }
 
-/* Textarea Styling */
 .textArea {
 	flex: 1;
 	resize: none;
@@ -70,7 +163,6 @@ html, body {
 	outline: none;
 }
 
-/* Send Button */
 .icon {
 	background: transparent;
 	border: none;
@@ -90,11 +182,11 @@ html, body {
 	transform: scale(1.1);
 }
 
-/* Delete/Erase Section */
 .eraseMsgs {
 	position: relative;
 	display: flex;
 	align-items: center;
+	justify-content: center;
 }
 
 .eraseMsgs img {
@@ -113,13 +205,13 @@ html, body {
 	cursor: pointer;
 	font-size: 0.875rem;
 	transition: background-color 0.3s ease;
+	text-align: center;
 }
 
 .eraseBtn:hover {
 	background-color: #d9363e;
 }
 
-/* Placeholder for No Messages */
 .no_msgs {
 	text-align: center;
 	padding: 2rem;
@@ -144,22 +236,7 @@ html, body {
 }
 
 ::-webkit-scrollbar-thumb {
-	background-color: #222;
 	border-radius: 4px;
-}
-
-
-/* Sidebar: Chat History */
-.chatList {
-	margin-top: 5%;
-	width: 260px;
-	background-color: #111;
-	border-right: 1px solid #222;
-	display: flex;
-	flex-direction: column;
-	padding: 1rem;
-	overflow-y: auto;
-	max-height: fit-content; /* Adjust height based on content */
 }
 
 .chatList::-webkit-scrollbar {
@@ -167,156 +244,69 @@ html, body {
 }
 
 .chatList::-webkit-scrollbar-thumb {
-	background-color: #333;
 	border-radius: 4px;
 }
 
-.newChatBtn {
-	background-color: #00bfa6;
-	color: #000;
-	border: none;
-	padding: 0.5rem 1rem;
-	border-radius: 8px;
-	font-weight: bold;
-	font-size: 0.9rem;
-	cursor: pointer;
-	margin-bottom: 1rem;
-	transition: background-color 0.3s ease;
+@media (max-width: 800px) {
+	.parent {
+		flex-direction: column;
+	}
+	.chatList {
+		width: 100vw;
+		height: auto;
+		max-height: 40vh;
+	}
+	.mainChatContainer {
+		margin-top: 0;
+	}
+	.inputArea {
+		flex-direction: row;
+		align-items: flex-end;
+		gap: 0.4rem;
+		max-width: 100vw;
+		padding: 0.7rem;
+	}
+	.textArea {
+		min-height: 36px;
+		max-height: 6px;
+		font-size: 0.95rem;
+		padding: 0.6rem 0.8rem;
+		border-radius: 0.7rem;
+	}
+	.icon {
+		align-self: flex-end;
+		width: 40px;
+		height: 40px;
+		padding: 0;
+		margin-top: 0;
+		background-color: #00bfa6;
+		border-radius: 50%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		transition: background 0.2s;
+	}
+	.icon img {
+		width: 22px;
+		height: 22px;
+		filter: invert(1);
+	}
+	.icon:hover {
+		background-color: #00a892;
+		transform: scale(1.08);
+	}
 }
 
-.newChatBtn:hover {
-	background-color: #00a892;
+@media (max-width: 600px) {
+	.inputArea {
+		margin-bottom: 3rem;
+	}
+	.textArea {
+		padding: auto;
+		min-height: 48px;
+	}
+	.mainChatContainer{
+		margin-left: 0;
+		padding: 0rem;
+	}
 }
-
-.chatHistory {
-	display: flex;
-	flex-direction: column;
-	gap: 0.5rem;
-	overflow-y: auto;
-	max-height: 100%; /* Ensure it doesn't overflow */
-}
-
-.chatHistoryItem {
-	background-color: #1a1a1a;
-	color: #eee;
-	padding: 0.75rem 1rem;
-	border-radius: 8px;
-	cursor: pointer;
-	font-size: 0.85rem;
-	transition: background-color 0.2s ease, color 0.2s ease;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
-
-.chatHistoryItem:hover {
-	background-color: #2a2a2a;
-	color: #00bfa6;
-}
-
-.chatHistoryItem.active {
-	background-color: #00bfa6;
-	color: #000;
-	font-weight: bold;
-}
-
-.mainChatContainer {
-	margin-top: 1%;
-	flex: 1;
-	display: flex;
-	flex-direction: column;
-	height: 100%;
-	overflow: hidden;
-	min-height: 0; /* Prevent flexbox overflow issues */
-}
-
-/* Add these or merge with your existing CSS */
-
-.chatList {
-	position: relative;
-	transition: width 0.2s ease;
-  }
-  
-  .resizer {
-	position: absolute;
-	top: 0;
-	right: 0;
-	width: 5px;
-	height: 100%;
-	cursor: col-resize;
-	z-index: 100;
-  }
-  
-  .toggleSidebarBtn {
-	background: none;
-	border: none;
-	color: #ccc;
-	cursor: pointer;
-	font-size: 1rem;
-	padding: 0.25rem;
-	position: absolute;
-	top: 0.5rem;
-	right: 0.5rem;
-  }
-  
-
-  .chatList {
-	display: flex;
-	flex-direction: column;
-	position: relative;
-	transition: width 0.2s ease;
-	background-color: #111;
-	color: #fff;
-	height: 100vh;
-	overflow: hidden;
-  }
-  
-  /* Header stays at the top */
-  .sidebarHeader {
-	padding: 1rem;
-	position: relative;
-	flex-shrink: 0;
-  }
-  
-  /* Chat history is scrollable */
-  .chatHistory {
-	flex-grow: 1;
-	overflow-y: auto;
-	padding: 0.5rem 0.5rem;
-  }
-  
-  /* Prevent items from shrinking */
-  .chatHistoryItem {
-	flex-shrink: 0;
-	padding: 0.5rem;
-	margin-bottom: 0.3rem;
-	border-radius: 6px;
-	cursor: pointer;
-	transition: background 0.2s;
-  }
-  
-  .chatHistoryItem:hover {
-	background: #222;
-  }
-  
-  .active {
-	background-color: #333;
-  }
-  
-  /* Button styles */
-  .newChatBtn {
-	flex-shrink: 0;
-	margin: 0.5rem;
-	padding: 0.4rem 1rem;
-	background-color: #333;
-	border: none;
-	border-radius: 6px;
-	cursor: pointer;
-	color: white;
-	font-weight: 500;
-  }
-  
-  .newChatBtn:hover {
-	background-color: #444;
-  }
-  

@@ -1,4 +1,5 @@
 .messageContainer {
+	position: sticky;
 	display: flex;
 	align-items: flex-start;
 	padding: 1rem;
@@ -67,4 +68,22 @@
 .user .avatar {
 	background-color: #007aff;
 	color: #ffffff;
+}
+
+
+@media screen and (max-width: 600px) {
+	.messageContainer {
+		padding: 0%;
+	}
+	.user .messageBubble,
+	.assistant .messageBubble {
+		max-width: 90%;
+		font-size: 0.9rem;
+		padding: 0.8rem 1rem;
+	}
+	.avatar {
+		width: 30px;
+		height: 30px;
+	}
+
 }

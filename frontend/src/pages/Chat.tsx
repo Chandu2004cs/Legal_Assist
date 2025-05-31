@@ -1,3 +1,5 @@
+// src/pages/Chat.tsx
+
 import {
   useRef,
   useState,
@@ -52,7 +54,7 @@ const Chat = () => {
   const [isLoadingChats, setIsLoadingChats] = useState(true);
   const [deleteChatToggle, setDeleteChatToggle] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(260);
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
   const resizingRef = useRef(false);
 
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
@@ -85,8 +87,8 @@ const Chat = () => {
           setChat(data);
           setSelectedChatId(initChatId);
         }
-      } catch {}
-      finally {
+      } catch {
+      } finally {
         setIsLoadingChats(false);
       }
     };
@@ -201,17 +203,23 @@ const Chat = () => {
 
   return (
     <div className={styles.parent}>
-      {/* Sidebar */}
-      <div
-        className={styles.chatList}
+      <aside
+        className={`${styles.chatList} ${
+          isCollapsed ? styles.collapsed : ""
+        }`}
         style={{ width: isCollapsed ? 60 : sidebarWidth }}
       >
         <div className={styles.sidebarHeader}>
           <button
-            className={styles.toggleSidebarBtn}
-            onClick={() => setIsCollapsed(prev => !prev)}
+        className={styles.toggleSidebarBtn}
+        onClick={() => {
+          setIsCollapsed(prev => {
+            localStorage.setItem("sidebarCollapsed", String(!prev));
+            return !prev;
+          });
+        }}
           >
-            {isCollapsed ? ">" : "<"}
+        {isCollapsed ? ">" : "<"}
           </button>
         </div>
 
@@ -236,99 +244,53 @@ const Chat = () => {
 
             <div className={`${styles.chatHistory} ${styles.scrollable}`}>
               {chatList.length === 0 && !isLoadingChats && (
-              <p className={styles.noChats}>No chats yet.</p>
+                <p className={styles.noChats}>No chats yet.</p>
               )}
               {chatList.map(c => (
-              <div
-                key={c.id}
-                className={`${styles.chatHistoryItem} ${
-                c.id === selectedChatId ? styles.active : ""
-                }`}
-                onClick={async () => {
-                if (c.id) {
-                  try {
-                  localStorage.setItem("chatId", c.id);
-                  const selected = await getChat(c.id);
-                  setChat(selected);
-                  setSelectedChatId(c.id);
-                  } catch {
-                  toast.error("Failed to load chat");
-                  }
-                }
-                }}
-                onContextMenu={async (e) => {
-                e.preventDefault();
-                const confirmDelete = window.confirm(
-                  "Are you sure you want to delete this chat?"
-                );
-                if (confirmDelete && c.id) {
-                  try {
-                  await deleteChatByIdChat(c.id); // Delete a specific chat by ID
-                  setChatList(prev => prev.filter(chat => chat.id !== c.id));
-                  if (selectedChatId === c.id) {
-                    setChat(null);
-                    setSelectedChatId(null);
-                    localStorage.removeItem("chatId");
-                  }
-                  toast.success("Chat deleted successfully");
-                  } catch {
-                  toast.error("Failed to delete chat");
-                  }
-                }
-                }}
-              >
-                {c.title || "Untitled Chat"}
-              </div>
-              ))}
-            </div>
-          </>
-        )}
-        <div
-          className={styles.resizer}
-          onMouseDown={handleMouseDown}
-          style={{ display: isCollapsed ? "none" : "block" }}
-        />
-      </div>
-
-      {/* Main Chat Area */}
-      <div className={styles.mainChatContainer}>
-        <div className={styles.chat} ref={messageContainerRef}>
-          {isLoadingChats && <SpinnerOverlay />}
-          {!isLoadingChats && (
-            <>
-              {messages.length === 0 ? (
-                <div className={styles.no_msgs}>
-                  <motion.div
-                    className={styles.no_msg_logo}
-                    animate={{ y: [0, -10, 0], transition: { repeat: Infinity } }}
-                  >
-                    <img alt="no msg bot" src={noMsgBot} />
-                  </motion.div>
-                  <p>
-                    Ask any Legal Query and get instant assistance. <br />
-                    Your data is safe and secure with us.
-                  </p>
+                <div
+                  key={c.id}
+                  className={`${styles.chatHistoryItem} ${
+                    c.id === selectedChatId ? styles.active : ""
+                  }`}
+                  onClick={async () => {
+                    if (c.id) {
+                      try {
+                        localStorage.setItem("chatId", c.id);
+                        const selected = await getChat(c.id);
+                        setChat(selected);
+                        setSelectedChatId(c.id);
+                      } catch {
+                        toast.error("Failed to load chat");
+                      }
+                    }
+                  }}
+                  onContextMenu={async e => {
+                    e.preventDefault();
+                    const confirmDelete = window.confirm(
+                      "Are you sure you want to delete this chat?"
+                    );
+                    if (confirmDelete && c.id) {
+                      try {
+                        await deleteChatByIdChat(c.id);
+                        setChatList(prev =>
+                          prev.filter(chat => chat.id !== c.id)
+                        );
+                        if (selectedChatId === c.id) {
+                          setChat(null);
+                          setSelectedChatId(null);
+                          localStorage.removeItem("chatId");
+                        }
+                        toast.success("Chat deleted successfully");
+                      } catch {
+                        toast.error("Failed to delete chat");
+                      }
+                    }
+                  }}
+                >
+                  {c.title || "Untitled Chat"}
                 </div>
-              ) : (
-                messages.map(msg =>
-                  msg && msg.id ? (
-                    <ChatItem
-                      key={msg.id}
-                      id={msg.id}
-                      content={msg.content}
-                      role={msg.role}
-                    />
-                  ) : null
-                )
-              )}
-              {isLoading && <ChatLoading />}
-            </>
-          )}
-        </div>
-
-        <div className={styles.inputContainer}>
-          <div className={styles.inputArea}>
-            <div className={styles.eraseMsgs}>
+              ))}
+                          <div className={styles.eraseMsgs}>
               <motion.img
                 animate={!deleteChatToggle ? "animate" : { rotate: 180 }}
                 src={upArrow}
@@ -349,6 +311,56 @@ const Chat = () => {
                 )}
               </AnimatePresence>
             </div>
+            </div>
+          </>
+        )}
+        <div
+          className={styles.resizer}
+          onMouseDown={handleMouseDown}
+          style={{ display: isCollapsed ? "none" : "block" }}
+        />
+      </aside>
+
+      {/* Main Chat Area */}
+      <section className={styles.mainChatContainer}>
+        <div className={styles.chat} ref={messageContainerRef}>
+          {isLoadingChats && <SpinnerOverlay />}
+          {!isLoadingChats && (
+            <>
+              {messages.length === 0 ? (
+                <div className={styles.no_msgs}>
+                  <motion.div
+                    className={styles.no_msg_logo}
+                    animate={{ y: [0, -10, 0], transition: { repeat: Infinity } }}
+                  >
+                    <img alt="no msg bot" src={noMsgBot} />
+                  </motion.div>
+                  <p>
+                    Ask any Legal Query and get instant assistance. <br />
+                    Your data is safe and secure with us.
+                  </p>
+                </div>
+              ) : (
+                messages.map(
+                  msg =>
+                    msg &&
+                    msg.id && (
+                      <ChatItem
+                        key={msg.id}
+                        id={msg.id}
+                        content={msg.content}
+                        role={msg.role}
+                      />
+                    )
+                )
+              )}
+              {isLoading && <ChatLoading />}
+            </>
+          )}
+        </div>
+
+        <div className={styles.inputContainer}>
+          <div className={styles.inputArea}>
             <textarea
               className={styles.textArea}
               ref={inputRef}
@@ -361,7 +373,7 @@ const Chat = () => {
             </button>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 };

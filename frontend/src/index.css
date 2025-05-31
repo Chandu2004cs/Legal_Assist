@@ -10,56 +10,109 @@ body {
 	margin: 0;
 	padding: 0;
 	background-color: #0b0f1a;
-	color: white;
+	color: #fff;
 	font-family: "Lato", sans-serif !important;
+	min-height: 100vh;
+	box-sizing: border-box;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: inherit;
 }
 
 a {
-	color: inherit;
+	color: #6ec1e4;
 	text-decoration: none;
+	transition: color 0.2s;
 }
 
-a:hover {
-	text-decoration: none;
-	cursor: pointer;
-	color: hover;
-}
-
-input {
-	/* Reset the default input styles */
-	appearance: none;
-	border: 1px solid #ccc;
-	padding: 8px;
-	margin: 4px 0;
-	font-size: inherit;
-}
-
-input:active,
-input:focus {
-	/* Optional: Reset additional active/focus styles */
+a:hover,
+a:focus {
+	color: #fff;
+	text-decoration: underline;
 	outline: none;
-	box-shadow: none;
+}
+
+input,
+textarea {
+	background: #181d2b;
+	color: #fff;
+	border: 1px solid #232a3b;
+	border-radius: 6px;
+	padding: 10px 12px;
+	margin: 6px 0;
+	font-size: 1rem;
+	transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:focus,
+textarea:focus {
+	border-color: #6ec1e4;
+	box-shadow: 0 0 0 2px rgba(110, 193, 228, 0.2);
+	outline: none;
 }
 
 button {
-	background: none;
+	background: linear-gradient(90deg, #1e253a 0%, #232a3b 100%);
+	color: #fff;
 	border: none;
-	padding: 0;
-	margin: 0;
-	font-size: inherit;
+	border-radius: 6px;
+	padding: 10px 20px;
+	margin: 6px 0;
+	font-size: 1rem;
 	font-family: inherit;
 	cursor: pointer;
+	transition: background 0.2s, box-shadow 0.2s;
+	box-shadow: 0 2px 8px rgba(11, 15, 26, 0.08);
 }
 
+button:hover,
 button:focus {
+	background: linear-gradient(90deg, #232a3b 0%, #1e253a 100%);
+	box-shadow: 0 4px 16px rgba(110, 193, 228, 0.08);
 	outline: none;
 }
 
 textarea {
-	border: none;
-	overflow: auto;
-	outline: none;
-	-webkit-box-shadow: none;
-	-moz-box-shadow: none;
-	box-shadow: none;
+	resize: vertical;
+	min-height: 80px;
+	max-width: 100%;
+}
+
+::-webkit-input-placeholder,
+::placeholder {
+	color: #b0b8c9;
+	opacity: 1;
+}
+
+::-webkit-scrollbar {
+	width: 8px;
+	background: #181d2b;
+}
+
+::-webkit-scrollbar-thumb {
+	background: #232a3b;
+	border-radius: 4px;
+}
+
+@media (max-width: 600px) {
+	html, body {
+		font-size: 16px;
+	}
+	body {
+		padding: 8px;
+	}
+	input,
+	textarea,
+	button {
+		font-size: 1em;
+		padding: 12px 10px;
+	}
+	button {
+		width: 100%;
+	}
 }
