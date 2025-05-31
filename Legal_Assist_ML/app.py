@@ -142,6 +142,6 @@ def handle_query():
 # === Run Server ===
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8080))
+    port = int(os.environ.get("PORT", 5000))  # ✅ Updated fallback to port 5000
     logging.info(f"✅ Flask server starting on http://0.0.0.0:{port}")
     app.run(host="0.0.0.0", port=port)
