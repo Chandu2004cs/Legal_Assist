@@ -8,13 +8,6 @@ import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import { randomUUID } from "crypto";
 
-// Generate or update a chat session
-import { Request, Response, NextFunction } from "express";
-import { v4 as uuidv4 } from "uuid";
-import axios from "axios";
-import { ObjectId } from "mongodb";
-import User from "../models/User"; // adjust path as needed
-
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 const GROQ_MODEL = "llama3-8b-8192";
 const HEADERS = {
