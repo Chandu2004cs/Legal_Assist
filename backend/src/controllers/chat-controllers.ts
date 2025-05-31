@@ -107,7 +107,7 @@ export const generateChatCompletion = async (
       user.chats.push(chat);
     }
 
-    const history = chat.messages || [];
+    const history = Array.isArray(chat.messages) ? chat.messages : ([] as typeof chat.messages);
     const assistantReply = await generateGptResponse(history, message);
 
     // Add messages to chat
