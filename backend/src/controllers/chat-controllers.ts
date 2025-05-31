@@ -9,57 +9,134 @@ import { v4 as uuidv4 } from "uuid";
 import { randomUUID } from "crypto";
 
 // Generate or update a chat session
-export const generateChatCompletion = async (
-	req: Request,
-	res: Response,
-	next: NextFunction
-) => {
-	try {
-		const { message } = req.body;
-		const chatId = req.params.chatId;
-		const user = await User.findById(res.locals.jwtData.id);
+import { Request, Response, NextFunction } from "express";
+import { v4 as uuidv4 } from "uuid";
+import axios from "axios";
+import { ObjectId } from "mongodb";
+import User from "../models/User"; // adjust path as needed
 
-		if (!user) {
-			return res.status(401).json("User not registered / token malfunctioned");
-		}
-
-		// === Call external legal assistant ===
-		const response = await axios.post(process.env.FLASK_URL, {
-			userId: user._id.toString(),
-			chatId: chatId,
-			query: message,
-		});
-		const assistantReply = response.data.response;
-
-		let chat;
-
-		// === If chatId provided, append to existing chat ===
-		if (chatId) {
-			chat = user.chats.find(c => c.id === chatId);
-			if (!chat) return res.status(404).json({ message: "Chat not found" });
-		} else {
-			// === Otherwise, create new chat ===
-			chat = {
-				id: uuidv4(),
-				title: "New Chat",
-				messages: [],
-			};
-			user.chats.push(chat);
-		}
-
-		// === Append user and assistant messages ===
-		chat.messages.push({ role: "user", content: message });
-		chat.messages.push({ role: "assistant", content: assistantReply });
-
-		await user.save();
-
-		return res.status(200).json({ chatId: chat.id, messages: chat.messages });
-	} catch (error: any) {
-		console.error("Error:", error);
-		return res.status(500).json({ message: error.message });
-	}
+const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
+const GROQ_MODEL = "llama3-8b-8192";
+const HEADERS = {
+  Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+  "Content-Type": "application/json",
 };
 
+const generateChatTitle = async (query: string, response: string) => {
+  const prompt = `You are an AI assistant that generates short and meaningful chat titles. 
+Given a user's query and an assistant's response, return a concise, 4–8 word title summarizing the topic. 
+Do not include quotes, punctuation, or emojis—just the title.
+
+User's Query: ${query}
+Assistant's Response: ${response}
+
+Title:`;
+
+  const body = {
+    model: GROQ_MODEL,
+    messages: [
+      { role: "system", content: "You generate chat titles." },
+      { role: "user", content: prompt },
+    ],
+    temperature: 0.5,
+    max_tokens: 20,
+  };
+
+  try {
+    const res = await axios.post(GROQ_API_URL, body, { headers: HEADERS });
+    return res.data.choices[0].message.content.trim();
+  } catch (err) {
+    console.error("Error generating title:", err.message);
+    return null;
+  }
+};
+
+const generateGptResponse = async (history: any[], query: string) => {
+  const conversationText = history
+    .map((msg) => `${msg.role.charAt(0).toUpperCase() + msg.role.slice(1)}: ${msg.content}`)
+    .join("\n");
+
+  const prompt = `You are a helpful legal assistant. Use the user's past conversation to respond thoughtfully. 
+Do not mention you have access to prior history, but integrate it naturally.
+
+Conversation history:
+${conversationText}
+
+User's Latest Query:
+${query}
+
+Your response:`;
+
+  const body = {
+    model: GROQ_MODEL,
+    messages: [
+      { role: "system", content: "You are a compassionate legal assistant." },
+      { role: "user", content: prompt },
+    ],
+    temperature: 0.7,
+    max_tokens: 800,
+  };
+
+  try {
+    const res = await axios.post(GROQ_API_URL, body, { headers: HEADERS });
+    return res.data.choices[0].message.content.trim();
+  } catch (err) {
+    console.error("Groq API Error:", err.message);
+    return `[Error from Groq: ${err.message}]`;
+  }
+};
+
+export const generateChatCompletion = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { message } = req.body;
+    const chatId = req.params.chatId;
+    const user = await User.findById(res.locals.jwtData.id);
+
+    if (!user) {
+      return res.status(401).json("User not registered / token malfunctioned");
+    }
+
+    let chat = chatId ? user.chats.find((c) => c.id === chatId) : null;
+    if (chatId && !chat) {
+      return res.status(404).json({ message: "Chat not found" });
+    }
+
+    if (!chat) {
+      chat = {
+        id: uuidv4(),
+        title: "New Chat",
+        messages: [],
+      };
+      user.chats.push(chat);
+    }
+
+    const history = chat.messages || [];
+    const assistantReply = await generateGptResponse(history, message);
+
+    // Add messages to chat
+    chat.messages.push({ role: "user", content: message });
+    chat.messages.push({ role: "assistant", content: assistantReply });
+
+    // If title is still "New Chat", try to auto-generate a better title
+    if (chat.title.toLowerCase() === "new chat") {
+      const title = await generateChatTitle(message, assistantReply);
+      if (title) {
+        chat.title = title;
+      }
+    }
+
+    await user.save();
+
+    return res.status(200).json({ chatId: chat.id, messages: chat.messages });
+  } catch (error: any) {
+    console.error("Controller Error:", error.message);
+    return res.status(500).json({ message: error.message });
+  }
+};
 
 export const createNewChat = async (req: Request, res: Response) => {
 	try {
