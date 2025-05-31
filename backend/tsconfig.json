@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "module": "NodeNext", 
+    "moduleResolution": "NodeNext",
+    "target": "ES2022",
+    "sourceMap": true,
+    "outDir": "dist",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true
+  },
+  "ts-node": {
+    "esm": true
+  },
+  "include": ["src/**/*.ts", "src/index.ts", "env-test.js"]
+}

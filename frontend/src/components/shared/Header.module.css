@@ -1,0 +1,41 @@
+.parent {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 50px; /* Reduced from 65px */
+	background-color: #000000;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 1rem; /* Reduced horizontal padding */
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+	z-index: 10;
+}
+
+.logoContainer {
+	display: flex;
+	align-items: center;
+	height: 100%;
+}
+
+.linksContainer {
+	display: flex;
+	gap: 1rem; /* Slightly reduced spacing */
+	align-items: center;
+}
+
+.linksContainer a {
+	color: #ffffff;
+	text-decoration: none;
+	font-size: 0.85rem; /* Reduced font size */
+	font-weight: 600;
+	padding: 0.3rem 0.75rem; /* Tighter padding */
+	border-radius: 6px;
+	transition: background 0.2s ease, color 0.2s ease;
+}
+
+.linksContainer a:hover {
+	background-color: #000000;
+	color: #00bfa6;
+}

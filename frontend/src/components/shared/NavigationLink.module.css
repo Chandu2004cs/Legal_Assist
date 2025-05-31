@@ -1,0 +1,24 @@
+.linkWrapper {
+	margin: 0.5rem 0;
+}
+
+.link {
+	display: inline-block;
+    background-color: #1a2a2f;
+	padding: 0.6rem 1rem;
+	border-radius: 8px;
+	font-weight: 500;
+	color: #d0e7e7;
+	transition: background-color 0.3s, color 0.3s;
+	text-decoration: none;
+}
+
+.link:hover {
+	background-color: #1a2a2f;
+	color: #00ced1;
+}
+
+.active {
+	background-color: #0f2027;
+	color: #00ffff;
+}
