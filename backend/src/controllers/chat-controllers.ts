@@ -99,15 +99,15 @@ export const generateChatCompletion = async (
     }
 
     if (!chat) {
-      chat = {
-        id: uuidv4(),
-        title: "New Chat",
-        messages: [],
-      };
-      user.chats.push(chat);
+	  chat = user.chats.create({
+		id: uuidv4(),
+		title: "New Chat",
+		messages: [],
+	  });
+	  user.chats.push(chat);
     }
 
-    const history = Array.isArray(chat.messages) ? chat.messages : ([] as typeof chat.messages);
+    const history = chat.messages || [];
     const assistantReply = await generateGptResponse(history, message);
 
     // Add messages to chat
@@ -130,6 +130,8 @@ export const generateChatCompletion = async (
     return res.status(500).json({ message: error.message });
   }
 };
+
+
 
 export const createNewChat = async (req: Request, res: Response) => {
 	try {
